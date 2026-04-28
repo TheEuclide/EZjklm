@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Ez pop sauce
 // @namespace    http://tampermonkey.net/
-// @version      6.0
-// @description  Synchro GitHub parfaite, anti-fantôme et boutons sandboxés
+// @version      6.2
+// @description  cheat for Jklm.fun - pop sauce
 // @author       The Euclide
 // @match        *://*.jklm.fun/*
 // @grant        GM_xmlhttpRequest
@@ -13,14 +13,13 @@
     'use strict';
 
     if (window.self !== window.top && window.location.pathname.includes('/games/popsauce')) {
-
-        // Le bon lien direct qui fonctionne !
+        
         const GITHUB_URL = "https://raw.githubusercontent.com/TheEuclide/EZjklm/main/database.json";
-
-        console.log("🍿 Assistant Pop Sauce 6.0 chargé avec succès !");
+        
+        console.log("🍿 Assistant Pop Sauce 6.2 chargé !");
 
         let baseDeDonneesLocale = JSON.parse(localStorage.getItem('popSauceDB')) || {};
-        let cleEnCours = "";
+        let cleEnCours = ""; 
         let lastImageUrl = "";
         let hashImageEnCours = "";
         let isHashing = false;
@@ -30,7 +29,6 @@
         document.body.appendChild(box);
         box.innerHTML = "☁️ Connexion au Cloud GitHub...";
 
-        // 🛡️ Filtre visuel absolu
         function estVisible(element) {
             if (!element) return false;
             if (element.closest('[hidden]')) return false;
@@ -41,33 +39,6 @@
             return true;
         }
 
-        function copierBaseDeDonnees() {
-            const texteFormate = JSON.stringify(baseDeDonneesLocale, null, 2);
-            navigator.clipboard.writeText(texteFormate).then(() => {
-                const btn = document.getElementById('btnExport');
-                if(btn) {
-                    btn.textContent = "✅ Copié ! Fais Ctrl+V sur GitHub";
-                    btn.style.background = "#005500";
-                    setTimeout(() => {
-                        btn.textContent = "💾 Copier mes données pour GitHub";
-                        btn.style.background = "#111";
-                    }, 4000);
-                }
-            }).catch(err => {
-                alert("❌ Erreur de copie. Ton navigateur bloque le presse-papiers.");
-            });
-        }
-
-        function sauvegarderReponseManuelle() {
-            const inputReponse = document.getElementById('inputReponse');
-            if (inputReponse && inputReponse.value.trim() !== "" && cleEnCours !== "") {
-                baseDeDonneesLocale[cleEnCours] = inputReponse.value.trim();
-                localStorage.setItem('popSauceDB', JSON.stringify(baseDeDonneesLocale));
-                mettreAJourAffichage(null, null, null, true);
-            }
-        }
-
-        // ☁️ Synchro GitHub propre
         function syncAvecGitHub() {
             GM_xmlhttpRequest({
                 method: "GET",
@@ -100,33 +71,20 @@
             } catch (e) { return "[IMG_ERREUR]"; }
         }
 
-        function mettreAJourAffichage(texteQuestion, texteSousTexte, urlImage, forceSuccesManuel = false) {
+        function mettreAJourAffichage(texteQuestion, texteSousTexte, urlImage) {
             let html = ``;
             if (texteQuestion) html += `<b>Question :</b> <i style="color:white;">${texteQuestion}</i><br>`;
             if (texteSousTexte) html += `<small style="color:#aaa;">Infos : ${texteSousTexte}</small><br>`;
             if (urlImage) html += `🖼️ <small style="color:cyan;">Image : ${hashImageEnCours}</small><br>`;
             html += `<hr style="border-color:#00FF00; margin: 10px 0;">`;
 
-            if (forceSuccesManuel) {
-                html += `✅ <b>Sauvegardé !</b><br>`;
-            } else if (baseDeDonneesLocale[cleEnCours]) {
-                html += `🎯 <b>RÉPONSE :</b> <span style="color:#FFFF00; font-size:18px; font-weight:bold;">${baseDeDonneesLocale[cleEnCours]}</span><br>`;
+            if (baseDeDonneesLocale[cleEnCours]) {
+                html += `🎯 <b>RÉPONSE :</b> <span style="color:#FFFF00; font-size:18px; font-weight:bold;">${baseDeDonneesLocale[cleEnCours]}</span>`;
             } else {
-                html += `⏳ <i>Inconnu...</i><br><br>`;
-                html += `<input type="text" id="inputReponse" placeholder="La réponse est..." style="background:#222; color:#00FF00; border:1px solid #00FF00; padding:4px; width:65%;"> `;
-                html += `<button id="btnAdd" style="background:#005500; color:#00FF00; border:1px solid #00FF00; padding:4px; cursor:pointer;">OK</button>`;
+                html += `⏳ <i>Inconnu... Attente de la fin du chrono.</i>`;
             }
 
-            html += `<hr style="border-color:#004400; margin: 15px 0 10px 0;">`;
-            html += `<button id="btnExport" style="background:#111; color:#00FF00; border:1px solid #005500; padding:6px; cursor:pointer; width:100%; font-size:12px;">💾 Copier mes données pour GitHub</button>`;
-
             box.innerHTML = html;
-
-            const btnAdd = document.getElementById('btnAdd');
-            if (btnAdd) btnAdd.addEventListener('click', sauvegarderReponseManuelle);
-
-            const btnExport = document.getElementById('btnExport');
-            if (btnExport) btnExport.addEventListener('click', copierBaseDeDonnees);
         }
 
         async function analyserScene() {
@@ -139,13 +97,13 @@
             const texteResultat = activeResult ? activeResult.textContent.trim() : "";
 
             if (activeChallenge) {
-                const elementQuestion = activeChallenge.querySelector('.prompt');
-                const elementSousTexte = activeChallenge.querySelector('.text');
+                const elementQuestion = activeChallenge.querySelector('.prompt'); 
+                const elementSousTexte = activeChallenge.querySelector('.text'); 
                 let imageElement = activeChallenge.querySelector('.image');
 
                 let texteQuestion = estVisible(elementQuestion) ? elementQuestion.textContent.replace(/\s+/g, ' ').trim() : "";
                 let texteSousTexte = estVisible(elementSousTexte) ? elementSousTexte.textContent.replace(/\s+/g, ' ').trim() : "";
-
+                
                 let rechercheTexte = `${texteQuestion} ${texteSousTexte}`.trim();
 
                 let urlImage = null;
@@ -184,19 +142,15 @@
                     cleEnCours = nouvelleCle;
                     mettreAJourAffichage(texteQuestion, texteSousTexte, urlImage);
                 }
-            }
+            } 
             else if (texteResultat && texteResultat.length > 5 && cleEnCours) {
                 if (!baseDeDonneesLocale[cleEnCours]) {
                     let reponseOfficielle = texteResultat.replace(/La réponse était\s*:?/i, '').replace(/The answer was\s*:?/i, '').split('\n')[0].trim();
                     if (reponseOfficielle) {
                         baseDeDonneesLocale[cleEnCours] = reponseOfficielle;
                         localStorage.setItem('popSauceDB', JSON.stringify(baseDeDonneesLocale));
-
+                        
                         box.innerHTML = `✅ <b>Retenu !</b> : <span style="color:yellow;">${reponseOfficielle}</span>`;
-                        box.innerHTML += `<hr style="border-color:#004400; margin: 15px 0 10px 0;"><button id="btnExport" style="background:#111; color:#00FF00; border:1px solid #005500; padding:6px; cursor:pointer; width:100%; font-size:12px;">💾 Copier mes données pour GitHub</button>`;
-
-                        const btnExport = document.getElementById('btnExport');
-                        if (btnExport) btnExport.addEventListener('click', copierBaseDeDonnees);
                     }
                 }
                 cleEnCours = ""; lastImageUrl = ""; hashImageEnCours = "";
