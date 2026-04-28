@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      6.0
 // @description  Synchro GitHub parfaite, anti-fantôme et boutons sandboxés
-// @author       Ton Pseudo
+// @author       The Euclide
 // @match        *://*.jklm.fun/*
 // @grant        GM_xmlhttpRequest
 // @connect      raw.githubusercontent.com
